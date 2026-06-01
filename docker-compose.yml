@@ -1,0 +1,157 @@
+services:
+  # ==========================================
+  # DATABASE LAYER (microservices-db)
+  # ==========================================
+  auth_db:
+    image: mongo:6.0
+    container_name: auth_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - auth_data:/data/db
+    networks:
+      - cluster_network
+
+  reservation_db:
+    image: mongo:6.0
+    container_name: reservation_db
+    ports:
+      - "27018:27017"
+    volumes:
+      - reservation_data:/data/db
+    networks:
+      - cluster_network
+
+  client_db:
+    image: mongo:6.0
+    container_name: client_db
+    ports:
+      - "27019:27017"
+    volumes:
+      - client_data:/data/db
+    networks:
+      - cluster_network
+
+  user_db:
+    image: mongo:6.0
+    container_name: user_db
+    ports:
+      - "27020:27017"
+    volumes:
+      - user_data:/data/db
+    networks:
+      - cluster_network
+
+  audit_db:
+    image: mongo:6.0
+    container_name: audit_db
+    ports:
+      - "27021:27017"
+    volumes:
+      - audit_data:/data/db
+    networks:
+      - cluster_network
+
+  # ==========================================
+  # APPLICATION MESH LAYER (microservices-docker)
+  # ==========================================
+  audit-service:
+    build: ./microservices-docker/auditlog-service
+    container_name: auditlog-service
+    environment:
+      - PORT=3005
+      - MONGO_URI=mongodb://audit_db:27017/audit_db
+    depends_on:
+      - audit_db
+    networks:
+      - cluster_network
+
+  auth-service:
+    build: ./microservices-docker/authentication-service
+    container_name: authentication-service
+    environment:
+      - PORT=3006
+      - MONGO_URI=mongodb://auth_db:27017/auth_db
+      - JWT_SECRET=j7yIl43XQRWQ+e6PJf+3ccPeQy51+hYtL+l6Zlbb3AQ=
+      - AUDIT_SERVICE_URL=http://auditlog-service:3005/api/v1/audit/logs
+      - NOTIF_SERVICE_URL=http://notification-service:3008/api/v1/notifications/send-email
+    depends_on:
+      - auth_db
+    networks:
+      - cluster_network
+
+  client-service:
+    build: ./microservices-docker/client-management-service
+    container_name: client-management-service
+    environment:
+      - PORT=3007
+      - MONGO_URI=mongodb://client_db:27017/client_db
+      - AUDIT_SERVICE_URL=http://auditlog-service:3005/api/v1/audit/logs
+    depends_on:
+      - client_db
+    networks:
+      - cluster_network
+
+  notification-service:
+    build: ./microservices-docker/notification-service
+    container_name: notification-service
+    environment:
+      - PORT=3008
+    networks:
+      - cluster_network
+
+  reservation-service:
+    build: ./microservices-docker/reservation-service
+    container_name: reservation-service
+    environment:
+      - PORT=3009
+      - MONGO_URI=mongodb://reservation_db:27017/reservation_db
+      - JWT_SECRET=j7yIl43XQRWQ+e6PJf+3ccPeQy51+hYtL+l6Zlbb3AQ=
+      - AUDIT_SERVICE_URL=http://auditlog-service:3005/api/v1/audit/logs
+      - NOTIF_SERVICE_URL=http://notification-service:3008/api/v1/notifications/send-email
+    depends_on:
+      - reservation_db
+    networks:
+      - cluster_network
+
+  user-service:
+    build: ./microservices-docker/user-service
+    container_name: user-service
+    environment:
+      - PORT=3010
+      - MONGO_URI=mongodb://user_db:27017/user_db
+      - JWT_SECRET=j7yIl43XQRWQ+e6PJf+3ccPeQy51+hYtL+l6Zlbb3AQ=
+      - AUDIT_SERVICE_URL=http://auditlog-service:3005/api/v1/audit/logs
+    depends_on:
+      - user_db
+    networks:
+      - cluster_network
+
+  # ==========================================
+  # NETWORKING API GATEWAY LAYER
+  # ==========================================
+  gateway:
+    build: ./microservices-haproxy
+    container_name: api_gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - audit-service
+      - auth-service          
+      - client-service        
+      - reservation-service
+      - user-service
+      - notification-service
+    networks:
+      - cluster_network
+
+networks:
+  cluster_network:
+    driver: bridge
+
+volumes:
+  auth_data:
+  reservation_data:
+  client_data:
+  user_data:
+  audit_data:
