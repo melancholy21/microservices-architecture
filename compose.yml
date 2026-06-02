@@ -1,0 +1,21 @@
+# /compose.yml
+networks:
+  cluster_network:
+    driver: bridge
+
+volumes:
+  auth_data:
+  reservation_data:
+  client_data:
+  user_data:
+  audit_data:
+
+include:
+  - infrastructure/compose-databases.yml
+  - microservices-docker/auditlog-service/compose.yml
+  - microservices-docker/authentication-service/compose.yml
+  - microservices-docker/client-management-service/compose.yml
+  - microservices-docker/notification-service/compose.yml
+  - microservices-docker/reservation-service/compose.yml
+  - microservices-docker/user-service/compose.yml
+  - microservices-haproxy/compose.yml

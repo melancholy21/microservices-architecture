@@ -3,3 +3,4 @@ microservices-db/
 *.log
 .env
 .DS_Store
+docker-compose.yml

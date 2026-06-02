@@ -1,0 +1,14 @@
+# /microservices-docker/notification-service/compose-service.yml
+services:
+  notification-service:
+    build: .
+    container_name: notification-service
+    environment:
+      - PORT=3008
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M

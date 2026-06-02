@@ -1,0 +1,17 @@
+# /microservices-docker/auditlog-service/compose-service.yml
+services:
+  audit-service:
+    build: .
+    container_name: auditlog-service
+    environment:
+      - PORT=3005
+      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@audit_db:27017/audit_db?authSource=admin
+    depends_on:
+      - audit_db
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M

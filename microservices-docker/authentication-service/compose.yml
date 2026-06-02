@@ -1,0 +1,20 @@
+# /microservices-docker/authentication-service/compose-service.yml
+services:
+  auth-service:
+    build: .
+    container_name: authentication-service
+    environment:
+      - PORT=3006
+      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@auth_db:27017/auth_db?authSource=admin
+      - JWT_SECRET=${JWT_SECRET}
+      - AUDIT_SERVICE_URL=http://auditlog-service:3005/api/v1/audit/logs
+      - NOTIF_SERVICE_URL=http://notification-service:3008/api/v1/notifications/send-email
+    depends_on:
+      - auth_db
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M

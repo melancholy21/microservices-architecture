@@ -40,7 +40,7 @@ userSchema.pre("save", async function () {
 
     // 2. Hash the password
     this.password = await bcrypt.hash(this.password, 10);
-s
+
     // Mongoose waits for the code to finish naturally.
 });
 // compare the password with the hashed password

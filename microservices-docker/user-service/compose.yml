@@ -1,0 +1,19 @@
+# /microservices-docker/user-service/compose-service.yml
+services:
+  user-service:
+    build: .
+    container_name: user-service
+    environment:
+      - PORT=3010
+      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@user_db:27017/user_db?authSource=admin
+      - JWT_SECRET=${JWT_SECRET}
+      - AUDIT_SERVICE_URL=http://auditlog-service:3005/api/v1/audit/logs
+    depends_on:
+      - user_db
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M

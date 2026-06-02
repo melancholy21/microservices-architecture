@@ -1,0 +1,91 @@
+# /infrastructure/compose-databases.yml
+services:
+  auth_db:
+    image: mongo:6.0
+    container_name: auth_db
+    ports:
+      - "127.0.0.1:27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - auth_data:/data/db
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  reservation_db:
+    image: mongo:6.0
+    container_name: reservation_db
+    ports:
+      - "127.0.0.1:27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - reservation_data:/data/db
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  client_db:
+    image: mongo:6.0
+    container_name: client_db
+    ports:
+      - "127.0.0.1:27019:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - client_data:/data/db
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  user_db:
+    image: mongo:6.0
+    container_name: user_db
+    ports:
+      - "127.0.0.1:27020:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - user_data:/data/db
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  audit_db:
+    image: mongo:6.0
+    container_name: audit_db
+    ports:
+      - "127.0.0.1:27021:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+    volumes:
+      - audit_data:/data/db
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G

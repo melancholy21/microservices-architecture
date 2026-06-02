@@ -1,0 +1,21 @@
+# /microservices-docker/haproxy/compose-gateway.yml
+services:
+  gateway:
+    build: ../../microservices-haproxy  # Resolves path back up to your gateway codebase
+    container_name: api_gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - audit-service
+      - auth-service          
+      - client-service        
+      - reservation-service
+      - user-service
+      - notification-service
+    networks:
+      - cluster_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
